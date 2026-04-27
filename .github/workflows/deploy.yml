@@ -21,57 +21,61 @@ jobs:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
-      - name: Checkout do repositório
+      # 🔹 Checkout
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 🔹 Git config
       - name: Configurar Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Node (Observable)
+      # 🔹 Node (Observable)
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
+      # 🔹 R (necessário pro rpy2)
       - name: Instalar R
         uses: r-lib/actions/setup-r@v2
 
       - name: Definir R_HOME
         run: echo "R_HOME=$(R RHOME)" >> $GITHUB_ENV
 
-      - name: Cache R libs
+      # 🔹 Cache R
       - uses: actions/cache@v4
         with:
           path: ~/R
           key: r-libs-${{ runner.os }}
 
+      # 🔹 Instalar libs R
       - name: Instalar dependências R
         run: |
           mkdir -p ~/R
           Rscript -e ".libPaths('~/R'); install.packages('remotes', repos='https://cloud.r-project.org')"
           Rscript -e ".libPaths('~/R'); remotes::install_github('splor-mg/relatorios', auth_token = Sys.getenv('GH_TOKEN'))"
 
-      - name: Instalar Python
+      # 🔹 Python
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
-      - name: Instalar Poetry
+      # 🔹 Poetry
       - run: pip install poetry
 
-      - name: Cache Poetry
+      # 🔹 Cache Poetry
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pypoetry
           key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Instalar dependências Python
+      # 🔹 Instalar dependências Python
       - run: poetry install
 
+      # 🔹 Rodar pipeline (SEU fluxo real)
       - name: Rodar pipeline de dados
         run: |
           poetry run task toml
@@ -81,22 +85,23 @@ jobs:
           R_LIBS_USER: ~/R
           LD_LIBRARY_PATH: ${{ env.R_HOME }}/lib:${{ env.LD_LIBRARY_PATH }}
 
+      # 🔹 Commit dos dados atualizados
       - name: Commit dados
         run: |
           git add src/data/
 
           if ! git diff --cached --quiet; then
-            git commit -m "Atualiza dados [skip ci]"
+            git commit -m "Atualiza dados LDO [skip ci]"
             git push origin main
           else
             echo "Sem alterações"
           fi
 
-      - name: Build do site
+      # 🔹 Build do site
       - run: npm ci
       - run: npm run build
 
-      - name: GitHub Pages
+      # 🔹 GitHub Pages
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
