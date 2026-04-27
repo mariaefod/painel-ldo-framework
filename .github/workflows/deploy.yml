@@ -1,42 +1,107 @@
-name: Deploy
+name: Pipeline Painel LDO
 
 on:
-  # Run this workflow whenever a new commit is pushed to main.
-  push: {branches: [main]}
-  # Run this workflow once per day, at 10:15 UTC
-  schedule: [{cron: "15 10 * * *"}]
-  # Run this workflow when triggered manually in GitHub’s UI.
-  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * *"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  deploy:
+  build-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
+      # 🔹 Checkout
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 🔹 Git config
+      - name: Configurar Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      # 🔹 Node (Observable)
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - id: date
-        run: echo "date=$(TZ=America/Los_Angeles date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-      - id: cache-data
-        uses: actions/cache@v4
+
+      # 🔹 R (necessário pro rpy2)
+      - name: Instalar R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Definir R_HOME
+        run: echo "R_HOME=$(R RHOME)" >> $GITHUB_ENV
+
+      # 🔹 Cache R
+      - uses: actions/cache@v4
         with:
-          path: src/.observablehq/cache
-          key: data-${{ hashFiles('src/data/*') }}-${{ steps.date.outputs.date }}
+          path: ~/R
+          key: r-libs-${{ runner.os }}
+
+      # 🔹 Instalar libs R
+      - name: Instalar dependências R
+        run: |
+          mkdir -p ~/R
+          Rscript -e ".libPaths('~/R'); install.packages('remotes', repos='https://cloud.r-project.org')"
+          Rscript -e ".libPaths('~/R'); remotes::install_github('splor-mg/relatorios')"
+
+      # 🔹 Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # 🔹 Poetry
+      - run: pip install poetry
+
+      # 🔹 Cache Poetry
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      # 🔹 Instalar dependências Python
+      - run: poetry install
+
+      # 🔹 Rodar pipeline (SEU fluxo real)
+      - name: Rodar pipeline de dados
+        run: |
+          poetry run task extract
+          poetry run task transform
+        env:
+          R_LIBS_USER: ~/R
+          LD_LIBRARY_PATH: ${{ env.R_HOME }}/lib:${{ env.LD_LIBRARY_PATH }}
+
+      # 🔹 Commit dos dados atualizados
+      - name: Commit dados
+        run: |
+          git add src/data/
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Atualiza dados LDO [skip ci]"
+            git push origin main
+          else
+            echo "Sem alterações"
+          fi
+
+      # 🔹 Build do site
+      - run: npm ci
       - run: npm run build
+
+      # 🔹 GitHub Pages
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
