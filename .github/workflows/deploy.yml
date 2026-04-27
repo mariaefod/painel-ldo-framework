@@ -76,6 +76,7 @@ jobs:
       # 🔹 Rodar pipeline (SEU fluxo real)
       - name: Rodar pipeline de dados
         run: |
+          poetry run task toml
           poetry run task extract
           poetry run task transform
         env:
