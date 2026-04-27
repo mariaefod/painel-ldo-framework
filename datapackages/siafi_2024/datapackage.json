@@ -1,0 +1,88 @@
+{
+  "name": "dados-armazem-siafi",
+  "profile": "tabular-data-package",
+  "resources": [
+    {
+      "name": "receita",
+      "type": "table",
+      "profile": "tabular-data-resource",
+      "path": "data/receita.csv.gz",
+      "scheme": "file",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "compression": "gz",
+      "encoding": "utf-8",
+      "hash": "sha256:7c5af7ed38ca2e375e064abb3ce1f546112c2ac16960ad23c89059af6c9fbdc0",
+      "bytes": 143318,
+      "fields": 11,
+      "rows": 9332,
+      "schema": {
+        "fields": [
+          {
+            "name": "ano",
+            "type": "integer",
+            "source": "Ano de Exercício"
+          },
+          {
+            "name": "mes_cod",
+            "type": "integer",
+            "source": "Mês - Numérico"
+          },
+          {
+            "name": "uo_cod",
+            "type": "integer",
+            "source": "Unidade Orçamentária - Código"
+          },
+          {
+            "name": "fonte_cod",
+            "type": "integer",
+            "source": "Fonte Recurso - Código"
+          },
+          {
+            "name": "receita_cod",
+            "type": "integer",
+            "source": "Classificação Receita - Código"
+          },
+          {
+            "name": "receita_cod_formatado",
+            "type": "string",
+            "source": "Classificação Receita - Formatado"
+          },
+          {
+            "name": "vlr_previsto_inicial",
+            "type": "number",
+            "source": "Valor Previsto Inicial"
+          },
+          {
+            "name": "vlr_previsto_adicional",
+            "type": "number",
+            "source": "Valor Previsto Adicional"
+          },
+          {
+            "name": "vlr_previsto_atualizado",
+            "type": "number",
+            "source": "Valor Previsto Atualizado"
+          },
+          {
+            "name": "vlr_contabilizado",
+            "type": "number",
+            "source": "Valor Contabilizado"
+          },
+          {
+            "name": "vlr_efetivado_ajustado",
+            "type": "number",
+            "source": "Valor Efetivado Ajustado"
+          }
+        ]
+      }
+    }
+  ],
+  "updated_at": "2026-04-01T08:48:52",
+  "remote": {
+    "host": "raw.githubusercontent.com",
+    "user": "splor-mg",
+    "repo": "dados-armazem-siafi-2024",
+    "ref": "main",
+    "sha": "c351209b7df1879075bf90fe1ce9dd392d7964e4"
+  }
+}

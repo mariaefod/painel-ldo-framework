@@ -1,0 +1,27 @@
+[project]
+name = "painel-ldo-framework"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Maria Duque",email = "maria.oliveira.duque@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "dpm @ git+https://github.com/splor-mg/dpm.git",
+    "frictionless (>=5.19.0,<6.0.0)",
+    "taskipy (>=1.14.1,<2.0.0)",
+    "tomli-w (>=1.2.0,<2.0.0)",
+    "pandas (>=2.0.0)",
+    "rpy2 (==3.5.12)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+toml = { cmd = 'poetry run python scripts/main.py toml', help = 'Generates data.toml file.' }
+extract = { cmd = 'poetry run python scripts/main.py extract', help = 'Extract resources using dpm.' }
+transform = { cmd = 'poetry run python scripts/main.py transform', help = 'Generates csv reports.' }

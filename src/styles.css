@@ -1,0 +1,40 @@
+h1 {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+h2 {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+h3 {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+p {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.card {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 12px;
+}
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.resumo > div {
+  background: var(--theme-background-alt);
+  border: solid 1px var(--theme-foreground-faintest);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
