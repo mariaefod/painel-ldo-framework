@@ -16,6 +16,10 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      R_LIBS_USER: ~/R
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
     steps:
       # 🔹 Checkout
       - uses: actions/checkout@v4
@@ -53,8 +57,6 @@ jobs:
           mkdir -p ~/R
           Rscript -e ".libPaths('~/R'); install.packages('remotes', repos='https://cloud.r-project.org')"
           Rscript -e ".libPaths('~/R'); remotes::install_github('splor-mg/relatorios', auth_token = Sys.getenv('GH_TOKEN'))"
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       # 🔹 Python
       - uses: actions/setup-python@v5
