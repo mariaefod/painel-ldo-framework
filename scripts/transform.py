@@ -1,32 +1,16 @@
 from helper import is_convenios_rec, is_intra_saude_rec, adiciona_desc
+from helper import ANO_REF, ANO_REF_LDO
 from frictionless import Package
 import unicodedata
 import pandas as pd
 import numpy as np
 import os
 import warnings
-from datetime import datetime, date
 
 warnings.filterwarnings('ignore')
 
-ANO_REF = datetime.now().year
-ANO_REF_LDO = ANO_REF + 1
-DATA = date.today()
-
 fontes_convenios = list(range(1, 10)) + [16, 17, 24, 36, 37, 56, 57] + \
     list(range(62, 71)) + [73, 74, 92, 93, 97, 98]
-
-df_auxiliar = (pd.read_csv('datapackages/tabelas_auxiliares/tab_auxiliar_fte_dcmefo.csv',
-                           sep=';', encoding='latin1', dtype={'CD_FONTE': 'string'},
-                           usecols=['CD_FONTE', 'Analise DCMEFO']))
-
-df_uo = pd.read_csv('datapackages/dados-aux-classificadores/data/uo.csv', sep=',',
-                    encoding='utf-8', dtype={'uo_cod': 'string', 'ano': 'string'})
-df_uo = df_uo[df_uo['ano'].str.strip() == str(ANO_REF)]
-
-df_fonte_recurso = pd.read_csv('datapackages/dados-aux-classificadores/data/fonte_recurso.csv',
-                     sep=',', encoding='utf-8', dtype={'fonte_cod': 'string', 'ano': 'string'})
-df_fonte_recurso = df_fonte_recurso[df_fonte_recurso['ano'].str.strip() == str(ANO_REF)]
 
 ALERT_MAP = {"OK": "🟢",
              "RECEITA A SER INFORMADA PELA DCGCE/SEPLAG": "🟣",
@@ -121,7 +105,7 @@ def carrega_trata_dados():
         exit(1)
 
 
-def cria_receita_fonte_analise(valor_painel, tipo_base):
+def cria_receita_fonte_analise(valor_painel, df_auxiliar, tipo_base):
 
     if tipo_base == 'receita':
         group_columns = ['ano', 'uo_cod', 'receita_cod', 'fonte_cod']
@@ -269,7 +253,7 @@ def cria_receita_fonte_analise(valor_painel, tipo_base):
     base_analise.to_csv(nome_arquivo, index=False)
 
 
-def cria_orcamento_analise():
+def cria_orcamento_analise(df_auxiliar, df_uo, df_fonte_recurso):
     df = pd.read_csv('datapackages/ppo_2027/data/Orcamento_Receita.csv', sep=';', encoding='utf-8',
                      dtype={'Código da Unidade': 'string', 'Fonte': 'string'})
 

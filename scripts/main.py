@@ -1,12 +1,9 @@
 import tomli_w
 import argparse
 import subprocess
-from datetime import datetime, date
+from helper import ANO_REF
+from helper import load_auxiliar, load_uo, load_fonte
 from transform import carrega_trata_dados, cria_receita_fonte_analise, cria_orcamento_analise, cria_dcmefo_analise
-
-ANO_REF = datetime.now().year
-ANO_REF_LDO = ANO_REF + 1
-DATA = date.today()
 
 def build_toml():
     config = {"packages": {}}
@@ -46,10 +43,21 @@ def extract_command():
 
 
 def transform_command():
+    df_auxiliar = load_auxiliar()
+    df_uo = load_uo(ANO_REF)
+    df_fonte_recurso = load_fonte(ANO_REF)
+
     valor_painel = carrega_trata_dados()
-    cria_receita_fonte_analise(valor_painel=valor_painel, tipo_base='receita')
-    cria_receita_fonte_analise(valor_painel=valor_painel, tipo_base='fonte')
-    cria_orcamento_analise()
+
+    cria_receita_fonte_analise(valor_painel=valor_painel,
+                               df_auxiliar=df_auxiliar,
+                               tipo_base='receita')
+    cria_receita_fonte_analise(valor_painel=valor_painel,
+                               df_auxiliar=df_auxiliar,
+                               tipo_base='fonte')
+    cria_orcamento_analise(df_auxiliar=df_auxiliar,
+                           df_uo=df_uo,
+                           df_fonte_recurso=df_fonte_recurso)
     cria_dcmefo_analise()
 
 
