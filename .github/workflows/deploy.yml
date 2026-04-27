@@ -52,7 +52,9 @@ jobs:
         run: |
           mkdir -p ~/R
           Rscript -e ".libPaths('~/R'); install.packages('remotes', repos='https://cloud.r-project.org')"
-          Rscript -e ".libPaths('~/R'); remotes::install_github('splor-mg/relatorios')"
+          Rscript -e ".libPaths('~/R'); remotes::install_github('splor-mg/relatorios', auth_token = Sys.getenv('GH_TOKEN'))"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       # 🔹 Python
       - uses: actions/setup-python@v5
